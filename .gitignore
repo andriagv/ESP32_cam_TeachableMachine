@@ -1,0 +1,71 @@
+# Arduino IDE files
+*.hex
+*.elf
+*.bin
+*.map
+*.eep
+*.lss
+*.sym
+*.tmp
+*.a
+*.o
+*.d
+*.eeprom
+*.hex
+*.bin
+*.map
+*.lss
+*.sym
+*.tmp
+*.a
+*.o
+*.d
+*.eeprom
+*.hex
+*.bin
+*.map
+*.lss
+*.sym
+*.tmp
+*.a
+*.o
+*.d
+*.eeprom
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Build directories
+build/
+dist/
+out/
+
+# Node modules (if any)
+node_modules/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
