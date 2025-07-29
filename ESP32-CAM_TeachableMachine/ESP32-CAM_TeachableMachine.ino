@@ -154,7 +154,7 @@ void setup() {
   //   
   // if PSRAM IC present, init with UXGA resolution and higher JPEG quality
   //                      for larger pre-allocated frame buffer.
-  if(psramFound()){  PSRAM(Psuedo SRAM)
+  if(psramFound()){  // PSRAM (Pseudo SRAM)
     config.frame_size = FRAMESIZE_UXGA;
     config.jpeg_quality = 10;
     config.fb_count = 2;
@@ -180,7 +180,7 @@ void setup() {
     s->set_saturation(s, -2); // lower the saturation
   }
   // drop down frame size for higher initial frame rate
-  s->set_framesize(s, FRAMESIZE_QVGA);     UXGA(1600x1200), SXGA(1280x1024), XGA(1024x768), SVGA(800x600), VGA(640x480), CIF(400x296), QVGA(320x240), HQVGA(240x176), QQVGA(160x120), QXGA(2048x1564 for OV3660)
+  s->set_framesize(s, FRAMESIZE_QVGA);     // UXGA(1600x1200), SXGA(1280x1024), XGA(1024x768), SVGA(800x600), VGA(640x480), CIF(400x296), QVGA(320x240), HQVGA(240x176), QQVGA(160x120), QXGA(2048x1564 for OV3660)
 
   //s->set_vflip(s, 1);  
   //s->set_hmirror(s, 1);  
@@ -208,7 +208,7 @@ void setup() {
         if ((StartTime+10000) < millis()) break;    
     } 
   
-    if (WiFi.status() == WL_CONNECTED) {    /
+    if (WiFi.status() == WL_CONNECTED) {    // Connected successfully
       WiFi.softAP((WiFi.localIP().toString()+"_"+(String)apssid).c_str(), appassword);           
       Serial.println("");
       Serial.println("STAIP address: ");
