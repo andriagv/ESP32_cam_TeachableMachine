@@ -47,17 +47,17 @@ const char* password = "123456788";   //your network password
 
 const char* apssid = "ESP32-CAM";
 const char* appassword = "12345678";         
-// 設定靜態IP地址
+
 IPAddress local_IP(172, 20, 10, 4);
 IPAddress gateway(172, 20, 10, 1);
 IPAddress subnet(255, 255, 255, 0);
 
 #include <WiFi.h>
 #include <esp32-hal-ledc.h>      
-#include "soc/soc.h"             //用於電源不穩不重開機 
-#include "soc/rtc_cntl_reg.h"    //用於電源不穩不重開機
+#include "soc/soc.h"             
+#include "soc/rtc_cntl_reg.h"    
 
-//官方函式庫
+
 #include "esp_camera.h"          
 #include "esp_http_server.h"     
 #include "img_converters.h"      
@@ -566,7 +566,454 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(<!doctype html>
         <meta http-equiv="Access-Control-Allow-Origin" content="*">
         <title>ESP32-CAM Web Interface</title>
         <style>
-          body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#ffffff;font-size:16px;margin:0;padding:20px;min-height:100vh}h2{font-size:24px;margin-bottom:20px;text-align:center;text-shadow:2px 2px 4px rgba(0,0,0,0.3)}section.main{display:flex;flex-direction:column;max-width:1200px;margin:0 auto;background:rgba(255,255,255,0.1);border-radius:15px;padding:20px;backdrop-filter:blur(10px);box-shadow:0 8px 32px rgba(0,0,0,0.3)}#menu{display:flex;flex-wrap:nowrap;min-width:340px;background:rgba(54,54,54,0.8);padding:15px;border-radius:10px;margin-top:10px;margin-right:10px;backdrop-filter:blur(10px)}#content{display:flex;flex-wrap:wrap;align-items:stretch}figure{padding:0;margin:0}figure img{display:block;width:100%;height:auto;border-radius:10px;margin-top:8px;box-shadow:0 4px 15px rgba(0,0,0,0.3)}@media (min-width: 800px) and (orientation:landscape){#content{display:flex;flex-wrap:nowrap;align-items:stretch}figure img{display:block;max-width:100%;max-height:calc(100vh - 40px);width:auto;height:auto}figure{padding:0;margin:0}}section#buttons{display:flex;flex-wrap:nowrap;justify-content:space-between;margin-bottom:20px}#nav-toggle{cursor:pointer;display:block;background:rgba(255,255,255,0.2);padding:10px;border-radius:8px;text-align:center;transition:all 0.3s ease}#nav-toggle:hover{background:rgba(255,255,255,0.3)}#nav-toggle-cb{outline:0;opacity:0;width:0;height:0}#nav-toggle-cb:checked+#menu{display:none}.input-group{display:flex;flex-wrap:nowrap;line-height:22px;margin:10px 0;align-items:center}.input-group>label{display:inline-block;padding-right:10px;min-width:47%;font-weight:bold}.input-group input,.input-group select{flex-grow:1;padding:8px;border-radius:5px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.1);color:#ffffff}.range-max,.range-min{display:inline-block;padding:0 5px;font-weight:bold}button{display:block;margin:5px;padding:12px 20px;border:0;line-height:28px;cursor:pointer;color:#fff;background:linear-gradient(45deg,#ff6b6b,#ee5a24);border-radius:8px;font-size:16px;outline:0;transition:all 0.3s ease;box-shadow:0 4px 15px rgba(0,0,0,0.2)}button:hover{background:linear-gradient(45deg,#ee5a24,#ff6b6b);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.3)}button:active{background:linear-gradient(45deg,#d63031,#e17055)}button.disabled{cursor:default;background:#a0a0a0}input[type=range]{-webkit-appearance:none;width:100%;height:22px;background:rgba(255,255,255,0.2);cursor:pointer;margin:0;border-radius:11px}input[type=range]:focus{outline:0}input[type=range]::-webkit-slider-runnable-track{width:100%;height:4px;cursor:pointer;background:linear-gradient(45deg,#ff6b6b,#ee5a24);border-radius:2px;border:0 solid #EFEFEF}input[type=range]::-webkit-slider-thumb{border:1px solid rgba(0,0,30,0);height:22px;width:22px;border-radius:50px;background:linear-gradient(45deg,#ff6b6b,#ee5a24);cursor:pointer;-webkit-appearance:none;margin-top:-9px;box-shadow:0 2px 8px rgba(0,0,0,0.3)}input[type=range]:focus::-webkit-slider-runnable-track{background:linear-gradient(45deg,#ff6b6b,#ee5a24)}input[type=range]::-moz-range-track{width:100%;height:4px;cursor:pointer;background:linear-gradient(45deg,#ff6b6b,#ee5a24);border-radius:2px;border:0 solid #EFEFEF}input[type=range]::-moz-range-thumb{border:1px solid rgba(0,0,30,0);height:22px;width:22px;border-radius:50px;background:linear-gradient(45deg,#ff6b6b,#ee5a24);cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3)}input[type=range]::-ms-track{width:100%;height:4px;cursor:pointer;background:0 0;border-color:transparent;color:transparent}input[type=range]::-ms-fill-lower{background:linear-gradient(45deg,#ff6b6b,#ee5a24);border:0 solid #EFEFEF;border-radius:2px}input[type=range]::-ms-fill-upper{background:linear-gradient(45deg,#ff6b6b,#ee5a24);border:0 solid #EFEFEF;border-radius:2px}input[type=range]::-ms-thumb{border:1px solid rgba(0,0,30,0);height:22px;width:22px;border-radius:50px;background:linear-gradient(45deg,#ff6b6b,#ee5a24);cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3)}input[type=range]:focus::-ms-fill-lower{background:linear-gradient(45deg,#ff6b6b,#ee5a24)}input[type=range]:focus::-ms-fill-upper{background:linear-gradient(45deg,#ff6b6b,#ee5a24)}.switch{display:block;position:relative;line-height:22px;font-size:16px;height:22px}.switch input{outline:0;opacity:0;width:0;height:0}.slider{width:60px;height:30px;border-radius:30px;cursor:pointer;background-color:rgba(255,255,255,0.3);transition:.4s;position:relative}.slider,.slider:before{display:inline-block;transition:.4s}.slider:before{position:absolute;content:"";border-radius:50%;height:24px;width:24px;left:3px;top:3px;background-color:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.3)}input:checked+.slider{background:linear-gradient(45deg,#ff6b6b,#ee5a24)}input:checked+.slider:before{-webkit-transform:translateX(30px);transform:translateX(30px)}select{border:1px solid rgba(255,255,255,0.3);font-size:14px;height:40px;outline:0;border-radius:8px;background:rgba(255,255,255,0.1);color:#ffffff;padding:0 10px}.image-container{position:relative;min-width:160px;border-radius:10px;overflow:hidden}.close{position:absolute;right:10px;top:10px;background:linear-gradient(45deg,#ff6b6b,#ee5a24);width:30px;height:30px;border-radius:50%;color:#fff;text-align:center;line-height:30px;cursor:pointer;font-size:18px;font-weight:bold;box-shadow:0 4px 15px rgba(0,0,0,0.3);transition:all 0.3s ease}.close:hover{transform:scale(1.1)}.hidden{display:none}#result{background:rgba(255,255,255,0.1);padding:15px;border-radius:10px;margin-top:20px;backdrop-filter:blur(10px);border-left:4px solid #ff6b6b}#logo{text-align:center;margin-bottom:20px}
+          * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+          }
+          
+          body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #add8e6, #40e0d0, #3cb371, #add8e6);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            color: #ffffff;
+            font-size: 16px;
+            margin: 0;
+            padding: 10px;
+            min-height: 100vh;
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100vw;
+          }
+          
+          @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+          }
+          
+          h2 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            color: #ffffff;
+          }
+          
+          .main-container {
+            max-width: 100%;
+            width: 100%;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            overflow: hidden;
+            box-sizing: border-box;
+          }
+          
+          .header {
+            text-align: center;
+            margin-bottom: 20px;
+          }
+          
+          .header p {
+            margin-bottom: 15px;
+            font-size: 14px;
+            opacity: 0.9;
+          }
+          
+          .controls-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+          }
+          
+          .button-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+          }
+          
+          button {
+            display: inline-block;
+            padding: 12px 20px;
+            border: 0;
+            cursor: pointer;
+            color: #fff;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            border-radius: 8px;
+            font-size: 14px;
+            outline: 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            min-width: 120px;
+            text-align: center;
+          }
+          
+          button:hover {
+            background: linear-gradient(45deg, #ee5a24, #ff6b6b);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+          }
+          
+          button:active {
+            background: linear-gradient(45deg, #d63031, #e17055);
+          }
+          
+          button.disabled {
+            cursor: default;
+            background: #a0a0a0;
+          }
+          
+          .settings-panel {
+            background: rgba(54,54,54,0.8);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 20px;
+            width: 100%;
+            box-sizing: border-box;
+          }
+          
+          .settings-toggle {
+            cursor: pointer;
+            display: block;
+            background: rgba(255,255,255,0.2);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+            font-weight: bold;
+          }
+          
+          .settings-toggle:hover {
+            background: rgba(255,255,255,0.3);
+          }
+          
+          .settings-toggle:checked + .settings-content {
+            display: none;
+          }
+          
+          .settings-content {
+            display: block;
+          }
+          
+          .input-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+            gap: 8px;
+            width: 100%;
+            min-width: 0;
+          }
+          
+          .input-group label {
+            font-weight: bold;
+            font-size: 14px;
+            color: #ffffff;
+            margin-bottom: 5px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+          
+          .input-group input,
+          .input-group select {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.1);
+            color: #ffffff;
+            font-size: 14px;
+            width: 100%;
+          }
+          
+          .input-group input:focus,
+          .input-group select:focus {
+            outline: none;
+            border-color: #40e0d0;
+            box-shadow: 0 0 0 2px rgba(64, 224, 208, 0.3);
+          }
+          
+          .range-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            width: 100%;
+            min-width: 0;
+          }
+          
+          .range-min,
+          .range-max {
+            font-weight: bold;
+            font-size: 12px;
+            color: #ffffff;
+            min-width: 30px;
+            text-align: center;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            flex-shrink: 0;
+          }
+          
+          input[type=range] {
+            -webkit-appearance: none;
+            flex: 1;
+            min-width: 150px;
+            height: 8px;
+            background: rgba(255,255,255,0.2);
+            cursor: pointer;
+            border-radius: 4px;
+            outline: none;
+            margin: 0;
+            padding: 0;
+          }
+          
+          input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+          }
+          
+          input[type=range]::-moz-range-thumb {
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+          }
+          
+          .switch {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+          }
+          
+          .switch input {
+            outline: 0;
+            opacity: 0;
+            width: 0;
+            height: 0;
+          }
+          
+          .slider {
+            width: 50px;
+            height: 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            background-color: rgba(255,255,255,0.3);
+            transition: .4s;
+            position: relative;
+            display: inline-block;
+          }
+          
+          .slider:before {
+            position: absolute;
+            content: "";
+            border-radius: 50%;
+            height: 19px;
+            width: 19px;
+            left: 3px;
+            top: 3px;
+            background-color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            transition: .4s;
+          }
+          
+          input:checked + .slider {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+          }
+          
+          input:checked + .slider:before {
+            transform: translateX(25px);
+          }
+          
+          .image-container {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            background: rgba(0,0,0,0.1);
+            padding: 15px;
+            text-align: center;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+          }
+          
+          .image-container img {
+            width: 100%;
+            max-width: 640px;
+            height: auto;
+            display: block;
+            border-radius: 10px;
+            margin: 0 auto;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            object-fit: contain;
+          }
+          
+          .close {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            color: #fff;
+            text-align: center;
+            line-height: 30px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+          }
+          
+          .close:hover {
+            transform: scale(1.1);
+          }
+          
+          .hidden {
+            /* Removed to keep elements visible */
+          }
+          
+          #result {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            backdrop-filter: blur(10px);
+            border-left: 4px solid #ff6b6b;
+            font-size: 14px;
+            line-height: 1.5;
+          }
+          
+          canvas {
+            display: block;
+            border-radius: 10px;
+            margin: 10px auto;
+            max-width: 100%;
+            height: auto;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            object-fit: contain;
+          }
+          
+          @media (max-width: 768px) {
+            body {
+              padding: 5px;
+              font-size: 14px;
+              overflow-x: hidden;
+            }
+            
+            .main-container {
+              padding: 10px;
+              width: 100%;
+              max-width: 100vw;
+            }
+            
+            .button-row {
+              flex-direction: column;
+              align-items: center;
+              gap: 8px;
+            }
+            
+            button {
+              width: 100%;
+              max-width: 200px;
+              font-size: 13px;
+              padding: 10px 15px;
+            }
+            
+            .input-group {
+              margin-bottom: 12px;
+              width: 100%;
+            }
+            
+            .range-container {
+              flex-direction: column;
+              align-items: stretch;
+              width: 100%;
+            }
+            
+            input[type=range] {
+              min-width: 100%;
+              width: 100%;
+            }
+            
+            .settings-panel {
+              width: 100%;
+              padding: 15px;
+            }
+            
+            .image-container {
+              width: 100%;
+              padding: 10px;
+              margin-bottom: 15px;
+              min-height: 250px;
+            }
+            
+            .image-container img {
+              max-width: 100%;
+              height: auto;
+            }
+            
+            canvas {
+              max-width: 100%;
+              height: auto;
+            }
+          }
+          
+          @media (min-width: 769px) {
+            .main-container {
+              max-width: 1200px;
+              width: 100%;
+            }
+            
+            .controls-section {
+              flex-direction: row;
+              align-items: flex-start;
+              gap: 20px;
+              width: 100%;
+            }
+            
+            .settings-panel {
+              flex: 0 0 350px;
+              max-width: 350px;
+            }
+            
+            .image-container {
+              flex: 1;
+              max-width: calc(100% - 370px);
+              padding: 15px;
+            }
+            
+            .image-container img {
+              max-width: 100%;
+              height: auto;
+            }
+            
+            canvas {
+              max-width: 100%;
+              height: auto;
+            }
+          }
         </style>
         <script src="https:\/\/ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
         <script src="https:\/\/cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
@@ -574,111 +1021,130 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(<!doctype html>
         <script src="https:\/\/cdn.jsdelivr.net/npm/@teachablemachine/pose@0.8/dist/teachablemachine-pose.min.js"></script>       
     </head>
     <body>
-        <section class="main">
-            <div id="logo">
-                <h2>ESP32-CAM Web Interface</h2>
-                <p style="text-align:center;margin-bottom:20px;">Access your camera at: http://172.20.10.4</p>
+        <div class="main-container">
+            <div class="header">
+                <h2>📷 ESP32-CAM Web Interface</h2>
+                <p>Access your camera at: http://172.20.10.4</p>
             </div>
-            <figure>
-              <div id="stream-container" class="image-container hidden">
-                <div class="close" id="close-stream" style="display:none">×</div>
-                <img id="stream" src="" style="display:none" crossorigin="anonymous">
-                <canvas id="canvas" width="0" height="0"></canvas>
-              </div>
-            </figure>         
-            <section id="buttons">
-                <table style="width:100%;text-align:center;">
-                <tr><td><button id="restart" onclick="try{fetch(document.location.origin+'/control?restart');}catch(e){}">🔄 Restart</button></td><td><button id="get-still" style="display:none">📷 Get Still</button></td><td><button id="toggle-stream" style="display:none">🎥 Start Stream</button></tr>
-                </table>
-            </section>        
-            <div id="content">
-                <div id="sidebar">
-                    <input type="checkbox" id="nav-toggle-cb">
-                    <label for="nav-toggle-cb" id="nav-toggle">⚙️ Settings Panel</label>
-                    <nav id="menu">
-                        <div class="input-group">
-                          <label for="kind">Model Type</label>
-                          <select id="kind">
+            
+            <div class="controls-section">
+                <div class="button-row">
+                    <button id="restart" onclick="try{fetch(document.location.origin+'/control?restart');}catch(e){}">🔄 Restart</button>
+                    <button id="get-still">📷 Get Still</button>
+                    <button id="toggle-stream">🎥 Start Stream</button>
+                </div>
+            </div>
+            
+            <div class="image-container" id="stream-container" style="display: block;">
+                <div class="close" id="close-stream">×</div>
+                <img id="stream" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjI0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjNjY2NjY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkNhbWVyYSBQcmV2aWV3PC90ZXh0Pjwvc3ZnPg==" crossorigin="anonymous" style="display: block;">
+                <canvas id="canvas" width="320" height="240" style="display: block;"></canvas>
+            </div>
+            
+            <div class="settings-panel">
+                <input type="checkbox" id="nav-toggle-cb" class="settings-toggle">
+                <label for="nav-toggle-cb" class="settings-toggle">⚙️ Settings Panel</label>
+                <div class="settings-content" id="menu">
+                    <div class="input-group">
+                        <label for="kind">Model Type</label>
+                        <select id="kind">
                             <option value="image">Image Recognition</option>
                             <option value="pose">Pose Detection</option>
-                          </select>
-                        </div>
-                        <div class="input-group">
-                          <label for="modelPath">Model URL</label>
-                          <input type="text" id="modelPath" value="" placeholder="Enter model URL">
-                        </div>
-                        <div class="input-group">
-                            <label for="btnModel"></label>
-                            <button type="button" id="btnModel" onclick="LoadModel();">🚀 Start Recognition</button>
-                        </div>                        
-                        <div class="input-group" id="flash-group">
-                            <label for="flash">💡 Flash</label>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="modelPath">Model URL</label>
+                        <input type="text" id="modelPath" value="" placeholder="Enter model URL">
+                    </div>
+                    
+                    <div class="input-group">
+                        <button type="button" id="btnModel" onclick="LoadModel();">🚀 Start Recognition</button>
+                    </div>
+                    
+                    <div class="input-group" id="flash-group">
+                        <label for="flash">💡 Flash</label>
+                        <div class="range-container">
                             <div class="range-min">0</div>
                             <input type="range" id="flash" min="0" max="255" value="0" class="default-action">
                             <div class="range-max">255</div>
                         </div>
-                        <div class="input-group" id="framesize-group">
-                            <label for="framesize">📐 Resolution</label>
-                            <select id="framesize" class="default-action">
-                                <option value="10">UXGA(1600x1200)</option>
-                                <option value="9">SXGA(1280x1024)</option>
-                                <option value="8">XGA(1024x768)</option>
-                                <option value="7">SVGA(800x600)</option>
-                                <option value="6">VGA(640x480)</option>
-                                <option value="5" selected="selected">CIF(400x296)</option>
-                                <option value="4">QVGA(320x240)</option>
-                                <option value="3">HQVGA(240x176)</option>
-                                <option value="0">QQVGA(160x120)</option>
-                            </select>
-                        </div>
-                        <div class="input-group" id="quality-group">
-                            <label for="quality">🎨 Quality</label>
+                    </div>
+                    
+                    <div class="input-group" id="framesize-group">
+                        <label for="framesize">📐 Resolution</label>
+                        <select id="framesize" class="default-action">
+                            <option value="10">UXGA(1600x1200)</option>
+                            <option value="9">SXGA(1280x1024)</option>
+                            <option value="8">XGA(1024x768)</option>
+                            <option value="7">SVGA(800x600)</option>
+                            <option value="6">VGA(640x480)</option>
+                            <option value="5" selected="selected">CIF(400x296)</option>
+                            <option value="4">QVGA(320x240)</option>
+                            <option value="3">HQVGA(240x176)</option>
+                            <option value="0">QQVGA(160x120)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group" id="quality-group">
+                        <label for="quality">🎨 Quality</label>
+                        <div class="range-container">
                             <div class="range-min">10</div>
                             <input type="range" id="quality" min="10" max="63" value="10" class="default-action">
                             <div class="range-max">63</div>
                         </div>
-                        <div class="input-group" id="brightness-group">
-                            <label for="brightness">☀️ Brightness</label>
+                    </div>
+                    
+                    <div class="input-group" id="brightness-group">
+                        <label for="brightness">☀️ Brightness</label>
+                        <div class="range-container">
                             <div class="range-min">-2</div>
                             <input type="range" id="brightness" min="-2" max="2" value="0" class="default-action">
                             <div class="range-max">2</div>
                         </div>
-                        <div class="input-group" id="contrast-group">
-                            <label for="contrast">🔍 Contrast</label>
+                    </div>
+                    
+                    <div class="input-group" id="contrast-group">
+                        <label for="contrast">🔍 Contrast</label>
+                        <div class="range-container">
                             <div class="range-min">-2</div>
                             <input type="range" id="contrast" min="-2" max="2" value="0" class="default-action">
                             <div class="range-max">2</div>
                         </div>
-                        <div class="input-group" id="hmirror-group">
-                            <label for="hmirror">🔄 H-Mirror</label>
-                            <div class="switch">
-                                <input id="hmirror" type="checkbox" class="default-action" checked="checked">
-                                <label class="slider" for="hmirror"></label>
-                            </div>
+                    </div>
+                    
+                    <div class="input-group" id="hmirror-group">
+                        <label for="hmirror">🔄 H-Mirror</label>
+                        <div class="switch">
+                            <input id="hmirror" type="checkbox" class="default-action" checked="checked">
+                            <label class="slider" for="hmirror"></label>
                         </div>
-                        <div class="input-group" id="vflip-group">
-                            <label for="vflip">🔄 V-Flip</label>
-                            <div class="switch">
-                                <input id="vflip" type="checkbox" class="default-action" checked="checked">
-                                <label class="slider" for="vflip"></label>
-                            </div>
+                    </div>
+                    
+                    <div class="input-group" id="vflip-group">
+                        <label for="vflip">🔄 V-Flip</label>
+                        <div class="switch">
+                            <input id="vflip" type="checkbox" class="default-action" checked="checked">
+                            <label class="slider" for="vflip"></label>
                         </div>
-                    </nav>
+                    </div>
                 </div>
             </div>
-        </section>
-        <br>
-        <div id="result" style="color:#ff6b6b;font-weight:bold;"><div>
+            
+            <div id="result" style="color:#ff6b6b;font-weight:bold;"></div>
+        </div>
         
         <script>
           document.addEventListener('DOMContentLoaded', function (event) {
             var baseHost = document.location.origin
             var streamUrl = baseHost + ':81'
             const hide = el => {
-              el.classList.add('hidden')
+              // Keep elements visible but hide if needed
+              el.style.display = 'none';
             }
             const show = el => {
-              el.classList.remove('hidden')
+              // Keep elements visible
+              el.style.display = 'block';
             }
             const disable = el => {
               el.classList.add('disabled')
