@@ -42,15 +42,12 @@ IP：http://192.168.4.1/?ip
 */
 
 
-const char* ssid     = "edurom";   //your network SSID
-const char* password = "123456788";   //your network password
+const char* ssid     = "*****";   //your network SSID
+const char* password = "*****";   //your network password
 
+//輸入AP端連線帳號密碼
 const char* apssid = "ESP32-CAM";
-const char* appassword = "12345678";         
-
-IPAddress local_IP(172, 20, 10, 4);
-IPAddress gateway(172, 20, 10, 1);
-IPAddress subnet(255, 255, 255, 0);
+const char* appassword = "12345678";         //AP密碼至少要8個字元以上
 
 #include <WiFi.h>
 #include <esp32-hal-ledc.h>      
@@ -154,13 +151,13 @@ void setup() {
   //   
   // if PSRAM IC present, init with UXGA resolution and higher JPEG quality
   //                      for larger pre-allocated frame buffer.
-  if(psramFound()){  // PSRAM (Pseudo SRAM)
-    config.frame_size = FRAMESIZE_UXGA;
-    config.jpeg_quality = 10;
+  if(psramFound()){  //是否有PSRAM(Psuedo SRAM)記憶體IC
+    config.frame_size = FRAMESIZE_VGA;  // Optimized for better performance
+    config.jpeg_quality = 20;  // Better quality while maintaining speed
     config.fb_count = 2;
   } else {
-    config.frame_size = FRAMESIZE_SVGA;
-    config.jpeg_quality = 12;
+    config.frame_size = FRAMESIZE_QVGA;  // Lower resolution for better performance
+    config.jpeg_quality = 30;  // Balanced quality
     config.fb_count = 1;
   }
 
@@ -180,22 +177,22 @@ void setup() {
     s->set_saturation(s, -2); // lower the saturation
   }
   // drop down frame size for higher initial frame rate
-  s->set_framesize(s, FRAMESIZE_QVGA);     // UXGA(1600x1200), SXGA(1280x1024), XGA(1024x768), SVGA(800x600), VGA(640x480), CIF(400x296), QVGA(320x240), HQVGA(240x176), QQVGA(160x120), QXGA(2048x1564 for OV3660)
+  s->set_framesize(s, FRAMESIZE_QVGA);    //解析度 UXGA(1600x1200), SXGA(1280x1024), XGA(1024x768), SVGA(800x600), VGA(640x480), CIF(400x296), QVGA(320x240), HQVGA(240x176), QQVGA(160x120), QXGA(2048x1564 for OV3660)
 
-  //s->set_vflip(s, 1);  
-  //s->set_hmirror(s, 1);  
+  //s->set_vflip(s, 1);  //垂直翻轉
+  //s->set_hmirror(s, 1);  //水平鏡像
   
-  //(GPIO4) - Flash LED (GPIO4)
+  //閃光燈(GPIO4)
   pinMode(4, OUTPUT);
-  analogWrite(4, 0);
+  digitalWrite(4, LOW);
   
-  WiFi.mode(WIFI_AP_STA);  // WiFi.mode(WIFI_AP); WiFi.mode(WIFI_STA);
+  WiFi.mode(WIFI_AP_STA);  //其他模式 WiFi.mode(WIFI_AP); WiFi.mode(WIFI_STA);
 
-  //ClientIP - Static IP Configuration for 172.20.10.4
-  WiFi.config(local_IP, gateway, subnet);
+  //指定Client端靜態IP
+  //WiFi.config(IPAddress(192, 168, 201, 100), IPAddress(192, 168, 201, 2), IPAddress(255, 255, 255, 0));
 
   for (int i=0;i<2;i++) {
-    WiFi.begin(ssid, password);    
+    WiFi.begin(ssid, password);    //執行網路連線
   
     delay(1000);
     Serial.println("");
@@ -215,10 +212,10 @@ void setup() {
       Serial.println(WiFi.localIP());
       Serial.println("");
   
-      for (int i=0;i<5;i++) {   
-        analogWrite(4, 10);
+      for (int i=0;i<5;i++) {   //若連上WIFI設定閃光燈快速閃爍
+        digitalWrite(4, HIGH);
         delay(200);
-        analogWrite(4, 0);
+        digitalWrite(4, LOW);
         delay(200);    
       }
       break;
@@ -228,15 +225,16 @@ void setup() {
   if (WiFi.status() != WL_CONNECTED) {    
     WiFi.softAP((WiFi.softAPIP().toString()+"_"+(String)apssid).c_str(), appassword);         
 
-    for (int i=0;i<2;i++) {    
-      analogWrite(4, 10);
+    for (int i=0;i<2;i++) {    //若連不上WIFI設定閃光燈慢速閃爍
+      digitalWrite(4, HIGH);
       delay(1000);
-      analogWrite(4, 0);
+      digitalWrite(4, LOW);
       delay(1000);    
     }
   } 
   
   
+  //指定AP端IP
   //WiFi.softAPConfig(IPAddress(192, 168, 4, 1), IPAddress(192, 168, 4, 1), IPAddress(255, 255, 255, 0)); 
   Serial.println("");
   Serial.println("APIP address: ");
@@ -245,12 +243,9 @@ void setup() {
   
   startCameraServer(); 
 
-  // - Set flash LED to low level
+  //設定閃光燈為低電位
   pinMode(4, OUTPUT);
-  digitalWrite(4, LOW); 
-  
-  Serial.println("ESP32-CAM Web Interface Ready!");
-  Serial.println("Access the interface at: http://172.20.10.4");
+  digitalWrite(4, LOW);
 }
 
 void loop() {
@@ -431,7 +426,7 @@ static esp_err_t cmd_handler(httpd_req_t *req){
       else if (cmd=="analogwrite") {   //Analog output control
         if (P1=="4") {
           pinMode(4, OUTPUT);
-          analogWrite(4, P2.toInt());     
+          digitalWrite(4, P2.toInt() > 0 ? HIGH : LOW);     
         }
         else {
           pinMode(P1.toInt(), OUTPUT);
@@ -461,9 +456,9 @@ static esp_err_t cmd_handler(httpd_req_t *req){
           if (WiFi.status() == WL_CONNECTED) {
             WiFi.softAP((WiFi.localIP().toString()+"_"+P1).c_str(), P2.c_str());
             for (int i=0;i<2;i++) {    
-              analogWrite(4, 10);
+              digitalWrite(4, HIGH);
               delay(300);
-              analogWrite(4, 0);
+              digitalWrite(4, LOW);
               delay(300);    
             }
             break;
@@ -473,7 +468,7 @@ static esp_err_t cmd_handler(httpd_req_t *req){
       else if (cmd=="flash") { 
         pinMode(4, OUTPUT);
         int val = P1.toInt();
-        analogWrite(4, val);  
+        digitalWrite(4, val > 0 ? HIGH : LOW);  
       }
       else if (cmd=="serial") {
         if (P1!=""&P1!="stop") Serial.println(P1);
@@ -509,7 +504,7 @@ static esp_err_t cmd_handler(httpd_req_t *req){
       else if(!strcmp(variable, "vflip")) res = s->set_vflip(s, val);  //Set vertical flip
       else if(!strcmp(variable, "flash")) {  //Control flash
         pinMode(4, OUTPUT);
-        analogWrite(4, val);
+        digitalWrite(4, val > 0 ? HIGH : LOW);
       } 
       else {
           res = -1;
@@ -1024,7 +1019,7 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(<!doctype html>
         <div class="main-container">
             <div class="header">
                 <h2>📷 ESP32-CAM Web Interface</h2>
-                <p>Access your camera at: http://172.20.10.4</p>
+                <p>Access your camera at: http://[ESP32-IP]</p>
             </div>
             
             <div class="controls-section">
